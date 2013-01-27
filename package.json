@@ -1,11 +1,11 @@
 {
   "name": "hoodie-worker",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "dependencies": {
     "q": "*",
     "cradle": "*"
   },
-  "main": "lib/Worker.js",
+  "main": "lib/worker.js",
   "devDependencies": {
     "mocha": "*"
   },
