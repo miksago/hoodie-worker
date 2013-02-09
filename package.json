@@ -2,12 +2,15 @@
   "name": "hoodie-worker",
   "version": "0.0.6",
   "dependencies": {
+    "cradle": "~0.6",
     "when": "~1.7",
-    "cradle": "~0.6"
+    "promisify": "git://github.com/jkroso/promisify.git"
   },
   "main": "lib/worker.js",
   "devDependencies": {
-    "mocha": "*"
+    "mocha": "*",
+    "should": "*",
+    "sinon": "*"
   },
   "scripts": {
     "test": "mocha"

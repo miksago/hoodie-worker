@@ -1,0 +1,4 @@
+--require should
+--reporter Spec 
+--slow 20
+--watch
