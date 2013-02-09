@@ -1,5 +1,5 @@
 var assert = require("assert");
-var Worker = require("./../lib/Worker");
+var Worker = require("./../lib/worker");
 
 describe("Worker", function() {
   describe("foo()", function() {

@@ -1,9 +1,9 @@
 {
   "name": "hoodie-worker",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "dependencies": {
-    "q": "*",
-    "cradle": "*"
+    "when": "~1.7",
+    "cradle": "~0.6"
   },
   "main": "lib/worker.js",
   "devDependencies": {
