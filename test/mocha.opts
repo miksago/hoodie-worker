@@ -1,4 +1,4 @@
 --require should
---reporter Spec 
+--reporter Min
 --slow 20
 --watch
