@@ -4,8 +4,8 @@ var when   = require("when");
 var fs     = require("fs");
 var cradle = require("cradle");
 
-var Worker           = require("./../lib/worker");
-var setupHelper      = require("./../lib/setup");
+var Worker           = require("./../lib/worker").Worker;
+var setupHelper      = require("./../lib/setup").setupHelper;
 var Setup            = require("./../lib/setup").Setup;
 
 var getWorkerMock = function() {

@@ -1,6 +1,6 @@
 var assert = require("assert");
 var sinon  = require("sinon");
-var Worker = require("./../lib/worker");
+var Worker = require("./../lib/worker").Worker;
 
 describe("Worker", function() {
 
