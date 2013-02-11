@@ -43,6 +43,22 @@ describe("Worker", function() {
       var promisifiedFunc = this.worker.promisify(nodeFunc)
       promisifiedFunc().then( null, function() { done() } )
     });
+    it("should promisify a node-style callback function with context", function( done) {
+      var context = {
+        proxy : function( cb ) { cb() },
+        func  : function( cb ) { this.proxy(cb) }
+      }
+      var promisifiedFunc = this.worker.promisify(context, 'func')
+      promisifiedFunc().then( done )
+    });
+    it("should promisify a node-style callback function with context (testing error)", function( done) {
+      var context = {
+        proxy : function( cb ) { cb({error: 'oops'}) },
+        func  : function( cb ) { this.proxy(cb) }
+      }
+      var promisifiedFunc = this.worker.promisify(context, 'func')
+      promisifiedFunc().then( null, function() { done() } )
+    });
   });
 
   describe('#log(message)', function () {
