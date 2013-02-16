@@ -98,6 +98,7 @@ describe("Worker", function() {
     });
     describe('with message passed', function () {
       it('it should log error', function () {
+
         this.worker.handleError({error: 'ooops'}, "something went wrong")
         this.worker.log.args[0][0].should.eql('error: something went wrong')
         this.worker.log.args[1][0].should.eql('{')
