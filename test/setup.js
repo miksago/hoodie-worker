@@ -211,7 +211,9 @@ describe('Setup', function () {
       it('should return a rejected promise', function () {
         var spy = sinon.spy()
         this.setup.readGlobalConfig().then(null, spy)
-        assert(spy.calledWith('error'))
+        var error = spy.lastCall.args[0]
+        assert(error instanceof Error)
+        assert(error.message === 'error')
       });
     });
   }); // #readGlobalConfig()
@@ -266,7 +268,9 @@ describe('Setup', function () {
 
       it('should handle the error', function(){
         this.setup.readUserConfig()
-        assert( this.setup.handleReadWorkerConfigError.calledWith('error') )
+        var error = this.setup.handleReadWorkerConfigError.lastCall.args[0]
+        assert(error instanceof Error)
+        assert(error.message === 'error')
       });
       it('should return a rejected promise', function () {
         var spy = sinon.spy()
@@ -421,7 +425,11 @@ describe('Setup', function () {
       it('should return a rejected promise', function(){
         var spy = sinon.spy()
         this.promise.then(null, spy)
-        assert( spy.calledWith( this.error ) )
+
+        var error = spy.lastCall.args[0]
+        assert(error instanceof Error)
+        assert(error.name === 'bad_request')
+        assert(error.message === 'Chuck Norris said you can\'t.')
       });
     });
   }); // #createConfigInModulesDatabase

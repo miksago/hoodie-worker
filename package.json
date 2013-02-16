@@ -4,7 +4,7 @@
   "dependencies": {
     "cradle": "~0.6",
     "when": "~1.7",
-    "when-promisify": "*"
+    "when-promisify": "~0.0.2"
   },
   "main": "lib/worker.js",
   "devDependencies": {
