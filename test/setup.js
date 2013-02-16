@@ -19,6 +19,8 @@ var getWorkerMock = function() {
       }
     },
     install : function() {},
+    log : function() {},
+    handleError : function() {},
     when : Worker.prototype.when,
     promisify : Worker.prototype.promisify
   }
@@ -38,8 +40,11 @@ CouchMock.prototype.database = function(name) {
 
 describe("setupHelper(worker, config)", function() {
   beforeEach( function () {
-    sinon.stub(Setup.prototype, 'assureInstallation').returns('promise');
+    this.assureInstallationDefer = when.defer()
+    sinon.stub(Setup.prototype, 'assureInstallation').returns( this.assureInstallationDefer.promise );
     sinon.stub(Setup.prototype, 'initCouchConnection');
+    this.workerMock = getWorkerMock()
+    sinon.stub(this.workerMock, 'handleError').returns( when.reject('error') );
     sinon.stub(fs, 'readFileSync').returns('{ "version" : "1.2.3"}');
   })
   afterEach( function () {
@@ -50,17 +55,30 @@ describe("setupHelper(worker, config)", function() {
 
   it('should init worker Setup', function(){
     var config = { name: 'test'}
-    var workerMock = getWorkerMock()
-    setupHelper(workerMock, config)
-    workerMock.name.should.eql('test')
-    workerMock.version.should.eql('1.2.3')
-    workerMock.config.should.eql( config )
+    setupHelper(this.workerMock, config)
+    this.workerMock.name.should.eql('test')
+    this.workerMock.version.should.eql('1.2.3')
+    this.workerMock.config.should.eql( config )
     Setup.prototype.assureInstallation.callCount.should.eql(1)
     Setup.prototype.initCouchConnection.callCount.should.eql(1)
   });
 
-  it('should return promise of Setup#assureInstallation', function(){
-    setupHelper(getWorkerMock(), {}).should.eql('promise')
+
+  describe('when #assureInstallation() fails with "error"', function () {
+    beforeEach(function () {
+      setupHelper(this.workerMock, { name: 'test'})
+      this.promise = this.assureInstallationDefer.reject('error')
+    });
+    it('should handle the error', function(){
+      this.workerMock.handleError.callCount.should.eql(1)
+      this.workerMock.handleError.lastCall.args[0].should.eql('error')
+    });
+
+    it('should return handleError\'s promise', function() {
+      var spy = sinon.spy()
+      this.promise.then( null, spy );
+      assert( spy.calledWith('error') )
+    });
   });
 }); // setupHelper
 
@@ -69,10 +87,10 @@ describe('Setup', function () {
     cradle.Connection = CouchMock
     var workerMock = getWorkerMock()
     this.setup = new Setup(workerMock)
-    sinon.stub(this.setup, 'log')
+    sinon.stub(this.setup.worker, 'log')
   })
   afterEach(function () {
-    this.setup.log.restore()
+    this.setup.worker.log.restore()
   });
 
   describe('#initCouchConnection()', function () {
@@ -92,12 +110,10 @@ describe('Setup', function () {
 
       sinon.stub(this.setup, 'readGlobalConfig').returns( this.readGlobalConfigDefer.promise );
       sinon.stub(this.setup, 'readUserConfig').returns( this.readUserConfigDefer.promise );
-      sinon.stub(this.setup, 'handleError').returns( when.reject('error') )
     })
     afterEach(function () {
       this.setup.readGlobalConfig.restore()
       this.setup.readUserConfig.restore()
-      this.setup.handleError.restore()
     });
 
     it('should return a promise', function () {
@@ -124,41 +140,14 @@ describe('Setup', function () {
           assert( spy.calledWith('w00t') )
         });
       });
-
-      describe('when #readUserConfig() fails with "error"', function () {
-        beforeEach(function () {
-          this.readUserConfigDefer.reject('error')
-        });
-        it('should handle the error', function(){
-          this.setup.assureInstallation()
-          this.setup.handleError.callCount.should.eql(1)
-          this.setup.handleError.lastCall.args[0].should.eql('error')
-        });
-
-        it('should return handleError\'s promise', function() {
-          var spy = sinon.spy()
-          this.setup.assureInstallation().then( null, spy );
-          assert( spy.calledWith('error') )
-        });
-      });
     });
 
-    describe('when readGlobalConfig() fails with "error"', function () {
-      beforeEach(function () {
-        this.readGlobalConfigDefer.reject('error')
-      });
-
-      it('should handle the error', function(){
-        this.setup.assureInstallation()
-        this.setup.handleError.callCount.should.eql(1)
-        this.setup.handleError.lastCall.args[0].should.eql('error')
-      });
-
-      it('should return handleError\'s promise', function() {
-        var spy = sinon.spy()
-        this.setup.assureInstallation().then( null, spy );
-        assert( spy.calledWith('error') )
-      });
+    it('should return handleError\'s promise', function() {
+      var promise = this.setup.assureInstallation()
+      this.readGlobalConfigDefer.reject('ooops')
+      var spy = sinon.spy()
+      promise.then(null, spy)
+      assert( spy.calledWith('ooops') )
     });
   }); // #assureInstallation()
 

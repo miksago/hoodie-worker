@@ -71,7 +71,7 @@ describe("Worker", function() {
 
     it('should log nicely', function ( ) {
       this.worker.log("check 1,2")
-      console.log.lastCall.args[0].should.eql('[testWorker] check 1,2')
+      console.log.lastCall.args[0].should.eql('[test]\tcheck 1,2')
     });
   });
 
@@ -87,10 +87,8 @@ describe("Worker", function() {
     describe('without message passed', function () {
       it('it should log error', function () {
         this.worker.handleError({error: 'ooops'})
-        this.worker.log.args[0][0].should.eql('error')
-        this.worker.log.args[1][0].should.eql('{')
-        this.worker.log.args[2][0].should.eql('  "error": "ooops"')
-        this.worker.log.args[3][0].should.eql('}')
+        this.worker.log.args[0][0].should.eql('Error')
+        this.worker.log.args[1][0].should.match(/at Worker.handleError/)
 
         // empty lines before / after error
         console.log.callCount.should.eql(2)
@@ -100,10 +98,8 @@ describe("Worker", function() {
       it('it should log error', function () {
 
         this.worker.handleError({error: 'ooops'}, "something went wrong")
-        this.worker.log.args[0][0].should.eql('error: something went wrong')
-        this.worker.log.args[1][0].should.eql('{')
-        this.worker.log.args[2][0].should.eql('  "error": "ooops"')
-        this.worker.log.args[3][0].should.eql('}')
+        this.worker.log.args[0][0].should.eql('Error: something went wrong')
+        this.worker.log.args[1][0].should.match(/at Worker.handleError/)
 
         // empty lines before / after error
         console.log.callCount.should.eql(2)
