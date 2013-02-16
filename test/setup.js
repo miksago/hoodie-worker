@@ -282,63 +282,57 @@ describe('Setup', function () {
       this.setup.worker.install.restore()
     });
 
-    var validReasons = ['deleted', 'missing'];
-    var handleBecauseOfValidReason = function (reason) {
-      describe('when error is "'+reason+'"', function () {
+    describe('when error is "not_found"', function () {
+      beforeEach(function () {
+        this.promise = this.setup.handleReadWorkerConfigError( {name: 'not_found'} )
+      });
+      it('should install', function () {
+        assert( this.setup.worker.install.calledOnce )
+      });
+
+      describe('when install succeeds', function () {
         beforeEach(function () {
-          this.promise = this.setup.handleReadWorkerConfigError( {reason: reason} )
+          this.installDefer.resolve()
         });
-        it('should install', function () {
-          assert( this.setup.worker.install.calledOnce )
+        it('should run createConfigInModulesDatabase', function() {
+          assert( this.setup.createConfigInModulesDatabase.calledOnce )
         });
 
-        describe('when install succeeds', function () {
+        describe('when createConfigInModulesDatabase succeeds', function () {
           beforeEach(function () {
-            this.installDefer.resolve()
-          });
-          it('should run createConfigInModulesDatabase', function() {
-            assert( this.setup.createConfigInModulesDatabase.calledOnce )
-          });
-
-          describe('when createConfigInModulesDatabase succeeds', function () {
-            beforeEach(function () {
-              this.createConfigInModulesDatabaseDefer.resolve()
-            }); 
-            it('should return a resolved promise', function (done) {
-              this.promise.then(done)
-            });
-          });
-
-          describe('when createConfigInModulesDatabase fails', function () {
-            beforeEach(function () {
-              this.createConfigInModulesDatabaseDefer.reject(({ reason: 'banana'}))
-            }); 
-            it('should return a resolved promise', function () {
-              var spy = sinon.spy()
-              this.promise.then(null, spy)
-              assert( spy.calledWith({reason: 'banana'}) )
-            });
+            this.createConfigInModulesDatabaseDefer.resolve()
+          }); 
+          it('should return a resolved promise', function (done) {
+            this.promise.then(done)
           });
         });
 
-        describe('when install fails', function () {
+        describe('when createConfigInModulesDatabase fails', function () {
           beforeEach(function () {
-            this.installDefer.reject({reason: 'meeeoooouuuuw'})
-          });
-          it('should not run createConfigInModulesDatabase', function() {
-            assert( this.setup.createConfigInModulesDatabase.notCalled )
-          });
-          it('should return a rejected promise', function(){
+            this.createConfigInModulesDatabaseDefer.reject(({ name: 'banana'}))
+          }); 
+          it('should return a resolved promise', function () {
             var spy = sinon.spy()
             this.promise.then(null, spy)
-            assert( spy.calledWith({reason: 'meeeoooouuuuw'}) )
+            assert( spy.calledWith({name: 'banana'}) )
           });
         });
-      })
-    }
-    for (var i = 0; i < validReasons.length; i++) {
-      handleBecauseOfValidReason(validReasons[i]);
-    }
+      });
+
+      describe('when install fails', function () {
+        beforeEach(function () {
+          this.installDefer.reject({reason: 'meeeoooouuuuw'})
+        });
+        it('should not run createConfigInModulesDatabase', function() {
+          assert( this.setup.createConfigInModulesDatabase.notCalled )
+        });
+        it('should return a rejected promise', function(){
+          var spy = sinon.spy()
+          this.promise.then(null, spy)
+          assert( spy.calledWith({reason: 'meeeoooouuuuw'}) )
+        });
+      });
+    })
 
     describe('when error is "ooops"', function () {
       beforeEach(function () {
