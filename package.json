@@ -4,6 +4,7 @@
   "dependencies": {
     "cradle": "~0.6",
     "when": "~1.7",
+    "clone": "~0.1",
     "when-promisify": "git://github.com/gr2m/when-promisify.git"
   },
   "main": "lib/worker.js",
